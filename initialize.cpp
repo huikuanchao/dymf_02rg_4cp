@@ -63,6 +63,7 @@ void initialize() {
   cout<<"kN "<<kappa*( Nda + Ndb )<<" chiABN "<<( Nda + Ndb )*chiAB<<endl;
   
  double  rdc_V = V * ( wall_para > 0 ? (L[2]-wall_thick*2)/L[2]: 1.0 );
+    cout<<"rdc_V in the sys "<<(L[2]-wall_thick*2)/L[2]<<endl;
 
   nD = int( ( 1.0 - phisol- phiHA - phiHB - phiP -phiHC) * rho0 * rdc_V / ( Nda + Ndb ) * CG_ratio ) ;
   nA = int( phiHA * rho0 * rdc_V / Nha * CG_ratio ) ;

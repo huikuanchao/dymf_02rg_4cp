@@ -59,7 +59,7 @@ void initialize_link_list(){
     int i ;
 
     nC_ll_head = new Node ;
-
+    nsol_ll_head = new Node ;
     initNode(nC_ll_head,0);
 
    cout<<"here"<<endl;
@@ -70,6 +70,14 @@ void initialize_link_list(){
           
     }
 
+    if(nsol > 0 ){
 
+	 initNode(nsol_ll_head,0);
+     for(i= 1; i<nsol ;i++){
+
+          addNode( nsol_ll_head, i);
+      }
+
+    }
 
 }

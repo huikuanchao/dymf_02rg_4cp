@@ -82,7 +82,7 @@ extern
 struct Node {
    int  data ;
    Node* next;
-} *nC_ll_head; 
+} *nsol_ll_head,*nC_ll_head; 
 
 
 

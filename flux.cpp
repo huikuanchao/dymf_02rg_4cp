@@ -1,9 +1,10 @@
 #include "globals.h"
 void  add_sol(int );
-void  remove_sol();
+void add_cchain(int);
+int remove_sol();
 int find_homoc();
 bool deleteNode(struct Node **, Node *);
-
+void addNode( struct Node *, int );
 
 void flux(){
 
@@ -21,12 +22,143 @@ void flux(){
 
   }
 
-   if(flux_para ==  2){
+   if((flux_para ==  2 ) and (cur_ratio > eq_phisol)){
              
            remove_sol();
     
    }
 
+
+}
+
+int remove_sol(){
+
+    struct Node *cur;
+    int j,tmp_rec_nsol[nsol],tmp_nsol=0,i,tp_solind ,ind1, ind2,  ind_t = max_nC*Nhc+nD*(Nda+Ndb) + nA*Nha +nB*Nhb + nP * ( 1 + ng_per_partic * ( Ng + 1 ) ) , ind_t2;
+
+    ind_t2 = ind_t - max_nC*Nhc;
+    double tmpz ;
+
+       for(i=0 ;i < nsol ; i++){
+	    
+	     if(i == 0 ) cur = nsol_ll_head;
+	     else cur = cur->next;
+             tp_solind = cur->data;
+ 	     ind1 = ind_t + tp_solind;
+
+             tmpz = x[ind1][Dim-1];//(x[ind1][Dim-1] +x[ind2][Dim-1])/2.0 ;
+	     if(tmpz >= flux_buffer){
+
+	       //    deleteNode(&nC_ll_head,cur);	   
+		 //  break;
+		  tmp_rec_nsol[tmp_nsol] = tp_solind;
+		  tmp_nsol +=1;
+		  
+             }
+	     if(tmp_nsol == Nhc ) break;
+	}
+
+	if(tmp_nsol < Nhc ){
+	  cout<<"can not find enough solvent in buffer!"<<endl;
+	  exit(1);
+	  //return 0;
+	}
+
+
+     tmp_nsol = 0;
+     for(i=0 ;i < nsol ; i++){
+	    
+	     if(i == 0 ) cur = nsol_ll_head;
+	     else cur = cur->next;
+             tp_solind = cur->data;
+ 	     ind1 = ind_t + tp_solind;
+
+             tmpz = x[ind1][Dim-1];//(x[ind1][Dim-1] +x[ind2][Dim-1])/2.0 ;
+	     if(tmpz >= flux_buffer){
+                  
+	           deleteNode(&nsol_ll_head,cur);	   
+		 //  break;
+                   tmp_rec_nsol[tmp_nsol] = tp_solind;		  
+		  tmp_nsol +=1;
+             }
+	     if(tmp_nsol == Nhc ) break;
+	}
+
+
+
+  // delete sol  and ad nchain moleclue
+       int tmp_rm_nc = 1;//int(double(tmp_nsol)/double(Nhc));
+       
+       for(i= 0; i<tmp_rm_nc; i++){
+
+             add_cchain(nC);
+             addNode( nC_ll_head, nC);	 
+
+	   for(j =0 ; j<Nhc ; j++){
+	    ind1 = tmp_rec_nsol[j];
+            sol_flag[ind1] = 0;
+	    ind2 =  ind_t + ind1; 
+            nstot_flag[ind2] = 0;
+	    
+	    ind2 = ind_t2+nC*Nhc+j;
+	    nstot_flag[ind2] = 1;
+	   }
+
+	   nc_flag[nC]  =1 ;
+	   nC += 1;
+           nsol -= Nhc;
+       }
+   return 1;
+}
+
+void add_cchain(int cind){
+	
+    struct Node *cur;
+    int j,tmp_rec_nsol[nsol],tmp_nsol=0,i,tp_solind ,ind, ind2,  ind_t = max_nC*Nhc+nD*(Nda+Ndb) + nA*Nha +nB*Nhb + nP * ( 1 + ng_per_partic * ( Ng + 1 ) ) , ind_t2;
+
+    ind_t2 = ind_t - max_nC*Nhc;
+
+    ind= ind_t2 + cind*Nhc;
+
+    
+    for(j=0 ; j<Dim ; j++){
+
+	if(j < Dim -1)
+	   x[ind][j] = ran2() * L[j] ;
+	else 
+	    x[ind][j] = ran2() *(L[j] - wall_thick -flux_buffer) + flux_buffer;
+        
+     }
+	tp[ ind ] = 3 ;
+       
+        xc[ind] = "S" ;
+
+	x_bac[ind][0] = -1;
+       
+	ind +=1;
+
+    for ( i=1 ; i<Nhc ; i++ ) {
+        for ( j=0 ; j<Dim ; j++ ) {
+	   x[ind][j] = x[ ind-1 ][ j ] + gasdev2() ;
+       
+           if ( x[ind][j] > L[j] )
+	      x[ind][j] -= L[j] ; 
+	   else if ( x[ind][j] < 0.0 )
+	      x[ind][j] += L[j] ;
+
+           if(j==Dim -1){
+	   	if ( x[ind][j] < flux_buffer)
+		    x[ind][j] += 2.0 * ( flux_buffer - x[ind][j] ) ;
+                if ( x[ind][j] > ( L[j] - wall_thick )  )
+		  x[ind][j] -= 2.0 * ( x[ind][j] - ( L[j] - wall_thick ) ) ;
+           }//j=dim-1
+       }
+
+       tp[ ind ] = 3 ;
+       xc[ind] = "S" ;
+       x_bac[ind][0] = -1;
+       ind++ ;
+    }
 
 }
 
@@ -94,26 +226,5 @@ void  add_sol(int ch_id ){
 }
 
 
-void  remove_sol(){
-
-     int i , j, min_sol=0,ind , ind_s = nD*(Nda+Ndb) + nA*Nha +nB*Nhb + nP * ( 1 + ng_per_partic * ( Ng + 1 ) )  + max_nC*Nhc ;
-   
-     for(i = 0 ; i< nsol ; i++){
-           ind = ind_s + i;
-
-	   if( x[ind][Dim-1]>flux_buffer){
-		 nstot_flag[ind] = 0;
-	   	 sol_flag[i] = 0;
-	         min_sol  += 1;
-	   }
-     
-        
-     }
-
-
-     nsol -= min_sol;
-
-
-}
 
 

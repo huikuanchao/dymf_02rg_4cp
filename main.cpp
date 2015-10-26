@@ -87,6 +87,15 @@ int main( int argc , char** argv ) {
 	 flux();
 
     }
+    else if((flux_para == 2 ) and (step % flux_sp == 0) and (max_nC> nC ) and (nsol>Nhc)){
+
+         flux();	
+    }
+    else{
+
+    }
+
+
 	 
 
     if ( stress_freq > 0 && step % stress_freq == 0 ) {
@@ -130,7 +139,7 @@ int main( int argc , char** argv ) {
 
     if(step % sample_freq == 0){
 	write_np();
-        write_film_gro();
+        //write_film_gro();
         char nm[20];
 
 	if(nsol > 0){
@@ -140,6 +149,8 @@ int main( int argc , char** argv ) {
 	if(nD > 0){
 	   sprintf( nm , "./frame/rhoda.frame%d.dat" , step ) ;
 	    write_grid_data( nm , rhoda ) ;
+	   sprintf( nm , "./frame/rhodb.frame%d.dat" , step ) ;
+	               write_grid_data( nm , rhodb ) ;
 	}
     }  
 
