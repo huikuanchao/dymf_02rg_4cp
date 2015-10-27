@@ -287,6 +287,7 @@ void forces() {
         gradwA[j][i] += tmp[i] * kappa / rho0 ;
         gradwB[j][i] += tmp[i] * ( kappa + ( A_partics ? chiAB : 0.0 ) ) / rho0 ;
         gradwC[j][i] += tmp[i] * ( kappa + ( A_partics ? chiAB : 0.0 ) ) / rho0 ;
+       gradwsol[j][i] += tmp[i] * kappa  / rho0 ;
       }
     }
 
@@ -336,6 +337,22 @@ void forces() {
         gradwP[j][i] += tmp[i] * ( kappa + ( A_partics ? chiAB : 0.0 ) ) / rho0 ;
 
     }
+    // sol Monomers acting on particles //
+    fftw_fwd( rho[4] , ktmp ) ;
+    for ( j=0 ; j<Dim ; j++) {
+
+#pragma omp parallel for
+      for ( i=0 ; i<M ; i++ )
+        ktmp2[i] = grad_uPG_hat[j][i] * ktmp[i] ;
+
+      fftw_back( ktmp2 , tmp ) ;
+
+#pragma omp parallel for
+      for ( i=0 ; i<M ; i++ )
+        gradwP[j][i] += tmp[i] *  kappa  / rho0 ;
+
+    }
+
 
 
 
