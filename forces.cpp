@@ -381,6 +381,8 @@ void forces() {
           f[i][j] -= gradwP[ j ][ gind ] * grid_W[i][m] ;
       	else if (  tp[i] ==3 )
 	  f[i][j] -= gradwC[ j ][ gind ] * grid_W[i][m] ;
+        else if (  tp[i] ==4 )
+	  f[i][j] -= gradwsol[ j ][ gind ] * grid_W[i][m] ;
       }
     }
 
