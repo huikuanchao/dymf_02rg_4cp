@@ -1021,9 +1021,11 @@ void random_config( void ) {
     int center_ind , gind,prev_graft ;
     double u[Dim] ;
 
+
     for ( j=0 ; j<Dim ; j++ )
       x[ind][j] = ran2() * L[j] ;
-
+     
+    x[ind][2] = ran2()*((L[2]-2*wall_thick)*(1-phiHA-phiHB-phiP-phiHC-phisol) - 2*Rp) + wall_thick+Rp;
     for(j=0 ; j<3 ; j++){
 
 	euler_ang[k][j] = 0;

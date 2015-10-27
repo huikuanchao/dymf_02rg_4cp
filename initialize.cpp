@@ -21,6 +21,8 @@ void initialize() {
    
   for(i =0 ; i<5 ; i++)
     wall_lamb[i] *= kappa;
+  
+  
   lagrange_weights = 0 ;
   spline_weights = 1 ;
 
@@ -83,7 +85,8 @@ void initialize() {
     Vp *= PI * Rp * Rp ;
   else if ( Dim == 3 )
     Vp *= 4.0 * PI * Rp * Rp * Rp / 3.0 ;
-
+  
+  wall_lamb[2] *= Vp;
 
 
   ////////////////////////////////////////
