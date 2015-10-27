@@ -93,7 +93,7 @@ void initialize() {
 
   p_m = Vp;
 
-  Diff_rot *= 1.0 / Vp / Rp / Rp ;
+  Diff_rot *= (Dim ==3 ? 2.5 : 2.0)*1.0 / Vp / Rp / Rp ;
 
 
   nP = nsP = 0.0 ;

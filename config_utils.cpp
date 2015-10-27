@@ -225,14 +225,14 @@ void read_gro( FILE *ip ) {
         fscanf( ip , "%lf" , &x[ind][j] ) ;
         x[ind][j] *= 10. ;
       }
-   /*   for ( j=0 ; j<Dim ; j++ ) {
+      for ( j=0 ; j<Dim ; j++ ) {
         fscanf( ip , "%lf" , &x_bac[ind][j] ) ;
         x_bac[ind][j] *= 10. ;
       }
       for ( j=0 ; j<Dim ; j++ ) {
         fscanf( ip , "%lf" , &gn_bac[ind][j] ) ;
       }
-     */
+     
      
       fgets( tt, 80 , ip ) ;
      
@@ -254,14 +254,14 @@ void read_gro( FILE *ip ) {
         fscanf( ip , "%lf" , &x[ind][j] ) ;
         x[ind][j] *= 10. ;
       }
-   /*   for ( j=0 ; j<Dim ; j++ ) {
+      for ( j=0 ; j<Dim ; j++ ) {
         fscanf( ip , "%lf" , &x_bac[ind][j] ) ;
         x_bac[ind][j] *= 10. ;
       }
       for ( j=0 ; j<Dim ; j++ ) {
         fscanf( ip , "%lf" , &gn_bac[ind][j] ) ;
       }
-     */
+     
      
       fgets( tt, 80 , ip ) ;
      
@@ -461,8 +461,9 @@ void write_rst_gro() {
   FILE *otp ;
   int i, j, ind, k, m, resind ;
 
-  int tp_ind1 = nD*(Nda+Ndb) + nA*Nha +nB*Nhb + nP * ( 1 + ng_per_partic * ( Ng + 1 ) ) + max_nC*Nhc ;
+  int tp_ind1 = nD*(Nda+Ndb) + nA*Nha +nB*Nhb + nP * ( 1 + ng_per_partic * ( Ng + 1 ) )  ;
 
+  int tp_ind2 = tp_ind1 +  max_nC*Nhc ;
   otp = fopen( "rst_coord.gro" , "w" ) ;
 
   fprintf( otp , "%lf = steps * delt, Writing frame %d\n" , double(step) * delt , step ) ;
@@ -591,8 +592,11 @@ void write_rst_gro() {
     resind++ ;
   }
   
-  for ( k=0 ; k<nC ; k++ ) {
+  int tmp_ncind = 0 ;
+ for ( k=0 ; k<max_nC ; k++ ) {
+   if(nc_flag[k] >0 ){
     for ( m=0 ; m<Nhc ; m++ ) {
+      ind  = tp_ind1 + tmp_ncind*Nhc + m; 
       fprintf( otp , "%5d" , resind % 100000 + 1 ) ;
       fprintf( otp , "%-5s" , "HC" ) ;
       fprintf( otp , "%5s" , xc[ind] ) ;
@@ -601,44 +605,52 @@ void write_rst_gro() {
       
       for ( j=0 ; j<Dim ; j++ )
         fprintf( otp , "%8.3lf" , x[ind][j] / 10.0 ) ;
-       for ( j=0 ; j<Dim ; j++ )
+      for ( j=0 ; j<Dim ; j++ )
         fprintf( otp , "%8.4lf" ,  x_bac[ind][j] / 10.0 );
    
       for ( j=0 ; j<Dim ; j++ )
               fprintf( otp , "%8.4lf" ,  gn_bac[ind][j]  );
 
-      
+ 
+      for ( j=Dim ; j<3 ; j++ )
+        fprintf( otp , "%8.3lf" , 0.0 );
       
       fprintf( otp , "\n" ) ;
 
-      ind++;
     }
+    tmp_ncind += 1;
     resind++ ;
+    }//flag
   }
-  
-  ind  = tp_ind1;
+ 
+ int tmp_solind = 0 ; 
 
-  for ( k=0 ; k<nsol ; k++ ) {
+ for ( k=0 ; k<max_nsol ; k++ ) {
+     if(sol_flag[k] >0){
+      ind =tp_ind2 + k ; 
       fprintf( otp , "%5d" , resind % 100000 + 1 ) ;
       fprintf( otp , "%-5s" , "sol" ) ;
       fprintf( otp , "%5s" , xc[ind] ) ;
      
-      fprintf( otp , "%5d" , ind % 100000 + 1 ) ;
+      fprintf( otp , "%5d" , (tp_ind1+nC*Nhc+tmp_solind) % 100000 + 1 ) ;
       
       for ( j=0 ; j<Dim ; j++ )
         fprintf( otp , "%8.3lf" , x[ind][j] / 10.0 ) ;
-       for ( j=0 ; j<Dim ; j++ )
+      for ( j=0 ; j<Dim ; j++ )
         fprintf( otp , "%8.4lf" ,  x_bac[ind][j] / 10.0 );
    
       for ( j=0 ; j<Dim ; j++ )
               fprintf( otp , "%8.4lf" ,  gn_bac[ind][j]  );
 
-      
+
+      for ( j=Dim ; j<3 ; j++ )
+        fprintf( otp , "%8.3lf" , 0.0 );
       
       fprintf( otp , "\n" ) ;
 
-      ind++;
-    resind++ ;
+      resind++ ;
+      tmp_solind +=1;
+     }
   }
 
 

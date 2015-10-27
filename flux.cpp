@@ -59,9 +59,9 @@ int remove_sol(){
 	}
 
 	if(tmp_nsol < Nhc ){
-	  cout<<"can not find enough solvent in buffer!"<<endl;
-	  exit(1);
-	  //return 0;
+	 // cout<<"can not find enough solvent in buffer!"<<endl;
+	//  exit(1);
+	  return 0;
 	}
 
 
@@ -141,10 +141,12 @@ void add_cchain(int cind){
         for ( j=0 ; j<Dim ; j++ ) {
 	   x[ind][j] = x[ ind-1 ][ j ] + gasdev2() ;
        
-           if ( x[ind][j] > L[j] )
-	      x[ind][j] -= L[j] ; 
-	   else if ( x[ind][j] < 0.0 )
-	      x[ind][j] += L[j] ;
+           if(j!= Dim -1){
+	   	if ( x[ind][j] > L[j] )
+	      		x[ind][j] -= L[j] ; 
+	   	else if ( x[ind][j] < 0.0 )
+	      		x[ind][j] += L[j] ;
+           }
 
            if(j==Dim -1){
 	   	if ( x[ind][j] < flux_buffer)
